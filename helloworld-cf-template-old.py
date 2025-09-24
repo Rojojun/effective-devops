@@ -1,6 +1,4 @@
 """Generating CloudFormation template."""
-from ipaddress import ip_network
-import requests
 
 from troposphere import (
     Base64,
@@ -13,17 +11,7 @@ from troposphere import (
     Template,
 )
 
-def get_ip():
-    """현재 공용 IP 주소를 가져옵니다."""
-    try:
-        response = requests.get('https://api.ipify.org', timeout=5)
-        return response.text.strip()
-    except:
-        # 기본값으로 0.0.0.0/0 사용 (모든 IP 허용)
-        return '0.0.0.0'
-
 ApplicationPort = "3000"
-PublicCidrIp = str(ip_network(get_ip() + '/32'))
 t = Template()
 
 t.set_description("Effective DevOps in AWS: HelloWorld web application")
@@ -43,13 +31,13 @@ t.add_resource(ec2.SecurityGroup(
             IpProtocol="tcp",
             FromPort="22",
             ToPort="22",
-            CidrIp=PublicCidrIp,
+            CidrIp="0.0.0.0/0",
         ),
         ec2.SecurityGroupRule(
             IpProtocol="tcp",
             FromPort=ApplicationPort,
             ToPort=ApplicationPort,
-            CidrIp=PublicCidrIp,
+            CidrIp="0.0.0.0/0",
         )
     ]
 ))
